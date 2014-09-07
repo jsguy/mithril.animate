@@ -6,7 +6,7 @@
 	//	Known prefiex
 	var prefixes = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'],
 	transitionProps = ['TransitionProperty', 'TransitionTiming', 'TransitionDelay', 'TransitionDuration', 'TransitionEnd'],
-	transformProps = ['rotate', 'scale', 'skew', 'translate'],
+	transformProps = ['rotate', 'scale', 'skew', 'translate', 'translatex', 'translatey', 'matrix'],
 	
 	//	Capitalise		
 	cap = function(str){
