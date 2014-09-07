@@ -154,36 +154,7 @@
 	//	Animate an element, correctly restoring properties we might change
 	m.animate = function(el, args){
 		el.style = el.style || {};
-		var props = defaultProps(args), oldProps = {},
-			time = getTimeinMS(props.TransitionDuration) || 0;
-
-		//	Save old properties
-		transitionProps.map(function(prop, idx){
-			var theProp = el.style[prop];
-			if(theProp) {
-				oldProps[prop] = theProp;
-			}
-		});
-		if(el.style['transform']) {
-			oldProps['transform'] = el.style['transform'];
-		}
-
-		clearTimeout(el.propTimer);
-
-		//	To restore old props
-		el.propTimer = setTimeout(function(){
-			//	Remove our used properties
-			transitionProps.map(function(prop){
-				var propObj = {};
-				propObj[prop] = "";
-				setStyleProps(el, propObj);
-			});
-
-			//	Add back old properties
-			if(!isEmpty(oldProps)) {
-				setStyleProps(el, oldProps);
-			}
-		}, time);
+		var props = defaultProps(args);
 
 		//	See if we support transitions
 		if(canTrans) {
@@ -191,7 +162,7 @@
 		} else {
 			//	Try and fall back to jQuery
 			if(typeof $ !== 'undefined' && $.fn && $.fn.animate) {
-				$(el).animate(props, getTimeinMS(props.TransitionDuration));
+				$(el).animate(props, getTimeinMS(props.TransitionDuration) || 0);
 			}
 		}
 	};

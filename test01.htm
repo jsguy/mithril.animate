@@ -65,7 +65,7 @@ var ani = {
 		return function(el){
 			var value = prop()? 1: 0;
 			m.animate(el, {
-				translateX: (value? "6em": "")
+				translateX: (value? "6em": "0")
 			});
 		};
 	},
@@ -82,7 +82,7 @@ var ani = {
 			var value = prop()? 0: 1;
 			m.animate(el, {
 				opacity: value,
-				translateY: (value? "": "-6em")
+				translateY: (value? "0": "-6em")
 			});
 		};
 	},
