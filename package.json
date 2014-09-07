@@ -1,0 +1,9 @@
+{
+	"name": "mithril.animate",
+	"version": "0.0.1",
+	"description": "Mithril animate - bind CSS3 animations to properties on your Mithril elements.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jsguy/mithril.animate.git"
+	},
+}

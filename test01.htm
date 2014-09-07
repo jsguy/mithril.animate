@@ -1,0 +1,132 @@
+<html>
+<head>
+	<title></title>
+	<script src="examples/mithril.js"></script>
+	<script src="mithril.animate.js"></script>
+
+	<style>
+		.eBox { width: 2em; height: 2em; background-color: #7b7; border: 1px solid #70bb70; margin-top: 1em;}
+		.eBox.alt1 { background-color: #cfc; border: 1px solid #c0ffc0; opacity: 0; }
+		.eBox.abs { top: 72px; position: absolute; }
+
+		.eBox.icon { position: absolute; background-color: inherit; border: none; background-image: url(examples/icons.png); background-repeat: no-repeat; background-position: 0 -32px;  }
+		.eBox.icon.alt1 { background-position: 0 0;  }
+
+
+		.cf:before, .cf:after {content: " "; display: table; }
+		.cf:after {clear: both; }
+		.cf {*zoom: 1; }
+
+		.exampleBox:before, .exampleBox:after {content: " "; display: table; }
+		.exampleBox:after {clear: both; }
+		.exampleBox { *zoom: 1; min-height: 7em; position: relative; border: 2px solid #333; border-radius: 3px; float: left; margin: 0 0 1em 1em; min-height: 7em; padding: 1em; position: relative; width: 20em; }
+		.exampleBox h2 { font-size: 1.2em; margin-top: 0; font-family: sans-serif; }
+
+	</style>
+
+</head>
+<body>
+<h1>Mithril.animate - bindable animations</h1>
+<p>
+	A compact library (less than 2KB) that allows you to bind CSS3 animations to properties on your mithril elements.
+</p>
+
+<div id="content"></div>
+
+<script>
+//	A few basic animations
+var ani = {
+	fade: function(prop){
+		return function(el){
+			m.animate(el, {
+				opacity: prop()? 0: 1 
+			});
+		};
+	},
+	scale: function(prop){
+		return function(el){
+			m.animate(el, {
+				scale: prop()? 0: 1 
+			});
+		};
+	},
+	fadeScale: function(prop){
+		return function(el){
+			m.animate(el, {
+				opacity: prop()? 0: 1,
+				scale: prop()? 0: 1 
+			});
+		};
+	},
+	spinCWFade: function(prop){
+		return function(el){
+			var value = prop()? 0: 1;
+			m.animate(el, {
+				opacity: value,
+				rotate: (value * -180) + "deg"
+			});
+		};
+	},
+	spinCCWFadeIn: function(prop){
+		return function(el){
+			var value = prop()? 1: 0;
+			m.animate(el, {
+				opacity: value,
+				rotate: (value * 180) + "deg"
+			});
+		};
+	}
+};
+</script>
+
+<!-- Mithril without bindings example -->
+<script>
+//	Basic animation examples
+var testapp = {
+	model: function() {
+		this.fade = m.prop();
+		this.scale = m.prop();
+		this.fadeScale = m.prop();
+		this.spinMenu = m.prop();
+	},
+	controller: function() {
+		var self = this;
+		self.model = new testapp.model();
+		self.toggle = function(prop){
+			return function(){
+				prop(!prop());
+			}
+		}
+	},
+	view: function(c) {
+		var o = c.model;
+		return [
+			m("div", { class: "exampleBox"}, [
+				m("button", { type: "button", onclick: c.toggle(o.fade)}, "Toggle fade"),
+				m("div", { class: "eBox", config: ani.fade(o.fade)})
+			]),
+			m("div", { class: "exampleBox"}, [
+				m("button", { type: "button", onclick: c.toggle(o.scale)}, "Toggle scale"),
+				m("div", { class: "eBox", config: ani.scale(o.scale)})
+			]),
+			m("div", { class: "exampleBox"}, [
+				m("button", { type: "button", onclick: c.toggle(o.fadeScale)}, "Toggle fade scale"),
+				m("div", { class: "eBox", config: ani.fadeScale(o.fadeScale)})
+			]),
+			m("div", { class: "exampleBox"}, [
+				m("h2", "Material design menu button"),
+				m("div", { class: "boxSurround", onclick: c.toggle(o.spinMenu)}, [
+					m("div", { class: "eBox icon", config: ani.spinCWFade(o.spinMenu)}),
+					m("div", { class: "eBox alt1 icon", config: ani.spinCCWFadeIn(o.spinMenu)}),
+				])
+			])
+		];
+	}
+};	
+//initialize
+m.module(document.getElementById('content'), testapp);
+</script>
+
+
+</body>
+</html>
