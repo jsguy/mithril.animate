@@ -24,166 +24,21 @@
 <body>
 <h1>Mithril.animate - bindable animations</h1>
 <p>
-	A compact library (less than 2KB) that allows you to bind CSS3 animations to properties on your mithril elements.
+	A compact library that allows you to bind CSS3 animations to properties on your mithril elements.
 </p>
 
 <div id="content"></div>
 
+<h2>Source</h2>
+<a href="all.example.js" target="_blank">Click here for the source for these examples</a>
+
+<script src="all.example.js"></script>
+
 <script>
-//	A few basic animations
-//	Note: it is much nicer to use mithril.bindings to create these.
-var ani = {
-	fade: function(prop){
-		return function(el){
-			m.animate(el, {
-				opacity: prop()? 0: 1 
-			});
-		};
-	},
-	scale: function(prop){
-		return function(el){
-			m.animate(el, {
-				scale: prop()? 0: 1 
-			});
-		};
-	},
-	rotate: function(prop){
-		return function(el){
-			m.animate(el, {
-				rotate: (prop() * 225) + "deg"
-			});
-		};
-	},
-	skew: function(prop){
-		return function(el){
-			m.animate(el, {
-				skew: [(prop() * 30) + "deg", (prop() * 30) + "deg"]
-			});
-		};
-	},
-	translateX: function(prop){
-		return function(el){
-			var value = prop()? 1: 0;
-			m.animate(el, {
-				translateX: (value? "6em": "0")
-			});
-		};
-	},
-	fadeScale: function(prop){
-		return function(el){
-			m.animate(el, {
-				opacity: prop()? 0: 1,
-				scale: prop()? 0: 1 
-			});
-		};
-	},
-	fadeUp: function(prop){
-		return function(el){
-			var value = prop()? 0: 1;
-			m.animate(el, {
-				opacity: value,
-				translateY: (value? "0": "-6em")
-			});
-		};
-	},
-	rotateCWFade: function(prop){
-		return function(el){
-			var value = prop()? 0: 1;
-			m.animate(el, {
-				opacity: value,
-				rotate: (value * -180) + "deg"
-			});
-		};
-	},
-	rotateCCWFadeIn: function(prop){
-		return function(el){
-			var value = prop()? 1: 0;
-			m.animate(el, {
-				opacity: value,
-				rotate: (value * 180) + "deg"
-			});
-		};
-	}
-};
+//initialize
+m.module(document.getElementById('content'), allExample);
 </script>
 
-<!-- Mithril without bindings example -->
-<script>
-//	Basic animation examples
-var testapp = {
-	model: function() {
-		this.fade = m.prop();
-		this.scale = m.prop();
-		this.rotate = m.prop();
-		this.skew = m.prop();
-		this.translateX = m.prop();
-		this.fadeScale = m.prop();
-		this.fadeUp = m.prop();
-		this.spinMenu = m.prop();
-	},
-	controller: function() {
-		var self = this;
-		self.model = new testapp.model();
-		self.toggle = function(prop){
-			return function(){
-				prop(!prop());
-			}
-		}
-	},
-	view: function(c) {
-		var o = c.model;
-		return [
-			m("h2", "Single animation examples"),
-			m("div", { class: "exampleBox"}, [
-				m("h3", "Fade"),
-				m("button", { type: "button", onclick: c.toggle(o.fade)}, "Toggle fade"),
-				m("div", { class: "eBox", config: ani.fade(o.fade)})
-			]),
-			m("div", { class: "exampleBox"}, [
-				m("h3", "Scale"),
-				m("button", { type: "button", onclick: c.toggle(o.scale)}, "Toggle scale"),
-				m("div", { class: "eBox", config: ani.scale(o.scale)})
-			]),
-			m("div", { class: "exampleBox"}, [
-				m("h3", "Rotate"),
-				m("button", { type: "button", onclick: c.toggle(o.rotate)}, "Toggle rotate"),
-				m("div", { class: "eBox", config: ani.rotate(o.rotate)})
-			]),
-			m("div", { class: "exampleBox"}, [
-				m("h3", "Skew"),
-				m("button", { type: "button", onclick: c.toggle(o.skew)}, "Toggle skew"),
-				m("div", { class: "eBox", config: ani.skew(o.skew)})
-			]),
-			m("div", { class: "exampleBox"}, [
-				m("h3", "translateX"),
-				m("button", { type: "button", onclick: c.toggle(o.translateX)}, "Toggle translateX"),
-				m("div", { class: "eBox", config: ani.translateX(o.translateX)})
-			]),
-			m("h2", "Multiple animation examples"),
-			m("div", { class: "exampleBox"}, [
-				m("h3", "Fade and scale"),
-				m("button", { type: "button", onclick: c.toggle(o.fadeScale)}, "Toggle fade scale"),
-				m("div", { class: "eBox", config: ani.fadeScale(o.fadeScale)})
-			]),
-			m("div", { class: "exampleBox"}, [
-				m("h3", "Fade up"),
-				m("button", { type: "button", onclick: c.toggle(o.fadeUp)}, "Toggle fade up"),
-				m("div", { class: "eBox", config: ani.fadeUp(o.fadeUp)})
-			]),
-			m("div", { class: "exampleBox"}, [
-				m("h3", "Material menu"),
-				m("a", { target: "_blank", href: "http://www.google.com/design/spec/animation/delightful-details.html" }, "Based on this"),
-				m("div", { class: "boxSurround", onclick: c.toggle(o.spinMenu)}, [
-					m("div", { class: "eBox icon", config: ani.rotateCWFade(o.spinMenu)}),
-					m("div", { class: "eBox alt1 icon", config: ani.rotateCCWFadeIn(o.spinMenu)}),
-				])
-			])
-		];
-	}
-};	
-//initialize
-m.module(document.getElementById('content'), testapp);
-</script>
 
 </body>
 </html>
