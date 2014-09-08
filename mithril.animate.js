@@ -151,7 +151,7 @@
 		}
 	};
 
-	//	Animate an element, correctly restoring properties we might change
+	//	Animate an element
 	m.animate = function(el, args){
 		el.style = el.style || {};
 		var props = defaultProps(args);
