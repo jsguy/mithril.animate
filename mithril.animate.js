@@ -135,15 +135,15 @@
 	//	each time any "on" event is fired. The good news is that the DOM won't be rerendered
 	//	as it uses the "diff" strategy, but the reality is, we don't really want this to run,
 	//	it would be nice to be able to avoid it.
-	m.animateVDOM = function (self, args) {
+	m.animateVDOM = function (self, args, cb) {
 		var oldConfig = self.config;
 
 		//	Use config so we can access the element - we need to be able to
 		//	remove transition/transform attributes after the animation is done,
 		//	and this seems the only way. Note: the animation will work on a
 		//	vDOM element, but we cannot remove the old attributes
-		self.config = function(element, isInitialised, ctx){
-			m.animateElement(element, args);
+		self.config = function(el){
+			m.animate(el, args, cb);
 			//	Run old config method, if one were supplied
 			if(oldConfig) {
 				oldConfig.apply(self, arguments);
@@ -152,9 +152,10 @@
 	};
 
 	//	Animate an element
-	m.animate = function(el, args){
+	m.animate = function(el, args, cb){
 		el.style = el.style || {};
-		var props = defaultProps(args);
+		var props = defaultProps(args),
+			time = getTimeinMS(props.TransitionDuration) || 0;
 
 		//	See if we support transitions
 		if(canTrans) {
@@ -162,8 +163,12 @@
 		} else {
 			//	Try and fall back to jQuery
 			if(typeof $ !== 'undefined' && $.fn && $.fn.animate) {
-				$(el).animate(props, getTimeinMS(props.TransitionDuration) || 0);
+				$(el).animate(props, time);
 			}
+		}
+
+		if(cb){
+			setTimeout(cb, time+1);
 		}
 	};
 
