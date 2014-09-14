@@ -5,5 +5,18 @@
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/jsguy/mithril.animate.git"
-	}
+	},
+	"dependencies": {
+		"mithril.bindings": "git://github.com/jsguy/mithril.bindings#master"
+	},
+	"devDependencies": {
+		"grunt":  "0.4.x",
+		"grunt-cli":  "0.1.9",
+		"grunt-contrib-uglify":  "0.2.x",
+		"grunt-contrib-jshint":  "0.6.x",
+		"grunt-contrib-qunit":  "0.2.x",
+		"grunt-contrib-watch":  "0.4.x",
+		"grunt-contrib-concat":  "0.3.x"
+	},
+	"license": "MIT"
 }
