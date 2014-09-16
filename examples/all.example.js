@@ -1,5 +1,5 @@
 //	Custom animation binders
-m.addBinding("rotateCWFade", function(prop){
+m.addBinding("rotateCWOpacity", function(prop){
 	var value = prop()? 0: 1;
 	m.animate(this, {
 		opacity: value,
@@ -7,7 +7,7 @@ m.addBinding("rotateCWFade", function(prop){
 	});
 }, true);
 
-m.addBinding("rotateCCWFadeIn", function(prop){
+m.addBinding("rotateCCWOpacityIn", function(prop){
 	var value = prop()? 1: 0;
 	m.animate(this, {
 		opacity: value,
@@ -18,13 +18,13 @@ m.addBinding("rotateCCWFadeIn", function(prop){
 //	Basic animation examples
 var allExample = {
 	model: function() {
-		this.fade = m.p();
+		this.opacity = m.p();
 		this.scale = m.p();
 		this.rotate = m.p();
 		this.skew = m.p([0,0]);
 		this.translateX = m.p();
-		this.fadeScale = m.p();
-		this.fadeUp = m.p({
+		this.opacityScale = m.p();
+		this.opacityUp = m.p({
 			up: m.p(0),
 			opacity: m.p(1)
 		});
@@ -42,15 +42,15 @@ var allExample = {
 			};
 		};
 
-		//	Shortcut to set hover fade up
-		self.fadeUpHover = [
+		//	Shortcut to set hover opacity up
+		self.opacityUpHover = [
 			function(){
-				self.model.fadeUp().up("-6em");
-				self.model.fadeUp().opacity("0");
+				self.model.opacityUp().up("-6em");
+				self.model.opacityUp().opacity("0");
 			},
 			function(){
-				self.model.fadeUp().up("0");
-				self.model.fadeUp().opacity("1");
+				self.model.opacityUp().up("0");
+				self.model.opacityUp().opacity("1");
 			}
 		];
 	},
@@ -59,9 +59,9 @@ var allExample = {
 		return [
 			m.e("h2", "Single animation"),
 			
-			m.e("div.exampleBox", { hover: [c.set(o.fade, 0), c.set(o.fade, 1)] }, [
-				m.e("h3", "Fade"),
-				m.e("div.eBox", { opacity: o.fade })
+			m.e("div.exampleBox", { hover: [c.set(o.opacity, 0), c.set(o.opacity, 1)] }, [
+				m.e("h3", "Opacity"),
+				m.e("div.eBox", { opacity: o.opacity })
 			]),
 			m.e("div.exampleBox", { hover: [c.set(o.scale, 0), c.set(o.scale, 1)] }, [
 				m.e("h3", "Scale"),
@@ -82,13 +82,13 @@ var allExample = {
 
 			m.e("h2", "Multiple animation"),
 
-			m.e("div.exampleBox", { hover: [c.set(o.fadeScale, 0), c.set(o.fadeScale, 1)] }, [
-				m.e("h3", "Fade and scale"),
-				m.e("div.eBox", { opacity: o.fadeScale, scale: o.fadeScale})
+			m.e("div.exampleBox", { hover: [c.set(o.opacityScale, 0), c.set(o.opacityScale, 1)] }, [
+				m.e("h3", "Opacity scale"),
+				m.e("div.eBox", { opacity: o.opacityScale, scale: o.opacityScale})
 			]),
-			m.e("div.exampleBox", { hover: c.fadeUpHover }, [
-				m.e("h3", "Fade up"),
-				m.e("div.eBox", { translatey: o.fadeUp().up, opacity: o.fadeUp().opacity })
+			m.e("div.exampleBox", { hover: c.opacityUpHover }, [
+				m.e("h3", "Opacity up"),
+				m.e("div.eBox", { translatey: o.opacityUp().up, opacity: o.opacityUp().opacity })
 			]),
 			
 			m.e("h2", "Custom animation"),
@@ -97,8 +97,8 @@ var allExample = {
 				m.e("h3", "Material menu"),
 				m.e("a", { target: "_blank", href: "http://www.google.com/design/spec/animation/delightful-details.html" }, "Based on this"),
 				m.e("div.boxSurround", [
-					m.e("div.eBox.icon", { rotateCWFade: o.spinMenu }),
-					m.e("div.eBox.alt1.icon", { rotateCCWFadeIn: o.spinMenu }),
+					m.e("div.eBox.icon", { rotateCWOpacity: o.spinMenu }),
+					m.e("div.eBox.alt1.icon", { rotateCCWOpacityIn: o.spinMenu }),
 				])
 			])
 		];
