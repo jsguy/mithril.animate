@@ -2,6 +2,7 @@ module.exports = function(grunt) {
 
 	//	Concatenation file order
 	var concatFiles = ['node_modules/mithril.bindings/dist/mithril.bindings.js', 'src/mithril.animate.js', 'src/mithril.animate.bindings.js'];
+		concatNobindFiles = ['src/mithril.animate.js'];
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -14,7 +15,9 @@ module.exports = function(grunt) {
 				nonull: true,
 				files: {
 					'dist/version/<%= pkg.name %>-<%= pkg.version %>.js': concatFiles,
-					'dist/<%= pkg.name %>.js': concatFiles
+					'dist/<%= pkg.name %>.js': concatFiles,
+					'dist/version/<%= pkg.name %>-<%= pkg.version %>.nobind.js': concatNobindFiles,
+					'dist/nobind/<%= pkg.name %>.nobind.js': concatNobindFiles
 				}
 			}
 		},
@@ -28,7 +31,9 @@ module.exports = function(grunt) {
 			dist: {
 				files: {
 					'dist/version/<%= pkg.name %>-<%= pkg.version %>.min.js': 'dist/version/<%= pkg.name %>-<%= pkg.version %>.js',
-					'dist/<%= pkg.name %>.min.js': 'dist/<%= pkg.name %>.js'
+					'dist/<%= pkg.name %>.min.js': 'dist/<%= pkg.name %>.js',
+					'dist/version/<%= pkg.name %>-<%= pkg.version %>.nobind.min.js': 'dist/version/<%= pkg.name %>-<%= pkg.version %>.nobind.js',
+					'dist/nobind/<%= pkg.name %>.nobind.min.js': 'dist/nobind/<%= pkg.name %>.nobind.js'
 				}
 			}
 		},
