@@ -64,8 +64,11 @@
 	};
 
 	//	Element function that applies our extended bindings
-	//	Note: certain attributes can be removed when applied
+	//	Note: 
+	//		. Some attributes can be removed when applied, eg: custom attributes
+	//	
 	context.m.e = function(element, attrs, children) {
+		var merged = []
 		for (var name in attrs) {
 			if (m.bindings[name]) {
 				m.bindings[name].func.apply(attrs, [attrs[name]]);
@@ -82,7 +85,10 @@
 	//	so they are set as removable
 	context.m.addBinding = function(name, func, removeable){
 		context.m.bindings = context.m.bindings || {};
-		context.m.bindings[name] = { func: func, removeable: removeable };
+		context.m.bindings[name] = {
+			func: func,
+			removeable: removeable
+		};
 	};
 
 	//	Get the underlying value of a property
@@ -134,7 +140,6 @@
 		};
 	}, true);
 
-
 	//	Toggle boolean value on click
 	context.m.addBinding('toggle', function(prop){
 		this.onclick = function(){
@@ -142,6 +147,14 @@
 			prop(!value);
 		}
 	}, true);
+
+	//	Set hover states, a'la jQuery pattern
+	context.m.addBinding('hover', function(prop){
+		this.onmouseover = prop[0];
+		if(prop[1]) {
+			this.onmouseout = prop[1];
+		}
+	}, true );
 
 }(window));;/*
 	mithril.animate - Copyright 2014 jsguy
@@ -275,27 +288,6 @@
 	//	See if we can use transitions
 	canTrans = supportsTransitions();
 
-	//	vDOM animation method - sets the properties on the object that represents the element
-	//	Note: due to how mithril handles redraws for "on" events, this code will run 
-	//	each time any "on" event is fired. The good news is that the DOM won't be rerendered
-	//	as it uses the "diff" strategy, but the reality is, we don't really want this to run,
-	//	it would be nice to be able to avoid it.
-	m.animateVDOM = function (self, args, cb) {
-		var oldConfig = self.config;
-
-		//	Use config so we can access the element - we need to be able to
-		//	remove transition/transform attributes after the animation is done,
-		//	and this seems the only way. Note: the animation will work on a
-		//	vDOM element, but we cannot remove the old attributes
-		self.config = function(el){
-			m.animate(el, args, cb);
-			//	Run old config method, if one were supplied
-			if(oldConfig) {
-				oldConfig.apply(self, arguments);
-			}
-		}
-	};
-
 	//	Animate an element
 	m.animate = function(el, args, cb){
 		el.style = el.style || {};
@@ -318,29 +310,28 @@
 	};
 
 }(window.m || {}));;/* Default transform2d bindings */
-var basicBindings = ['opacity', 'scale', 'scalex', 'scaley', 'translate', 'translatex', 'translatey', 'matrix'], i;
+(function (m) {
+	var basicBindings = ['opacity', 'scale', 'scalex', 'scaley', 'translate', 'translatex', 'translatey', 'matrix'], i;
 
-for(i = 0; i < basicBindings.length; i += 1) {
-	(function(name){
-		m.addBinding(name, function(prop){
-			var options = {};
-			options[name] = prop();
-			m.animateVDOM(this, options);
-		}, true);
-	}(basicBindings[i]));
-}
-m.addBinding("rotate", function(prop){
-	m.animateVDOM(this, { rotate: prop() + "deg" });
-}, true);
-m.addBinding("skew", function(prop){
-	m.animateVDOM(this, { skew: [prop().x+ "deg", prop().y + "deg"] });
-}, true);
-m.addBinding("skewx", function(prop){
-	m.animateVDOM(this, { skewx: prop()+ "deg" });
-}, true);
-m.addBinding("skewy", function(prop){
-	m.animateVDOM(this, { skewy: prop()+ "deg" });
-}, true);
-m.addBinding("skew", function(prop){
-	m.animateVDOM(this, { skew: [prop().x+ "deg", prop().y + "deg"] });
-}, true);
+	for(i = 0; i < basicBindings.length; i += 1) {
+		(function(name){
+			m.addBinding(name, function(prop){
+				var options = {};
+				options[name] = prop();
+				m.animate(this, options);
+			}, true);
+		}(basicBindings[i]));
+	}
+	m.addBinding("rotate", function(prop){
+		m.animate(this, { rotate: prop() + "deg" });
+	}, true);
+	m.addBinding("skew", function(prop){
+		m.animate(this, { skew: [prop()[0]+ "deg", prop()[1] + "deg"] });
+	}, true);
+	m.addBinding("skewx", function(prop){
+		m.animate(this, { skewx: prop()+ "deg" });
+	}, true);
+	m.addBinding("skewy", function(prop){
+		m.animate(this, { skewy: prop()+ "deg" });
+	}, true);
+}(window.m));

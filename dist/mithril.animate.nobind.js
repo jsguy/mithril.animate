@@ -130,27 +130,6 @@
 	//	See if we can use transitions
 	canTrans = supportsTransitions();
 
-	//	vDOM animation method - sets the properties on the object that represents the element
-	//	Note: due to how mithril handles redraws for "on" events, this code will run 
-	//	each time any "on" event is fired. The good news is that the DOM won't be rerendered
-	//	as it uses the "diff" strategy, but the reality is, we don't really want this to run,
-	//	it would be nice to be able to avoid it.
-	m.animateVDOM = function (self, args, cb) {
-		var oldConfig = self.config;
-
-		//	Use config so we can access the element - we need to be able to
-		//	remove transition/transform attributes after the animation is done,
-		//	and this seems the only way. Note: the animation will work on a
-		//	vDOM element, but we cannot remove the old attributes
-		self.config = function(el){
-			m.animate(el, args, cb);
-			//	Run old config method, if one were supplied
-			if(oldConfig) {
-				oldConfig.apply(self, arguments);
-			}
-		}
-	};
-
 	//	Animate an element
 	m.animate = function(el, args, cb){
 		el.style = el.style || {};
