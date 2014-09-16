@@ -5,7 +5,7 @@
 (function (m) {
 	//	Known prefiex
 	var prefixes = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'],
-	transitionProps = ['TransitionProperty', 'TransitionTiming', 'TransitionDelay', 'TransitionDuration', 'TransitionEnd'],
+	transitionProps = ['TransitionProperty', 'TransitionTimingFunction', 'TransitionDelay', 'TransitionDuration', 'TransitionEnd'],
 	transformProps = ['rotate', 'scale', 'skew', 'translate', 'translatex', 'translatey', 'matrix'],
 	
 	//	Capitalise		
@@ -82,7 +82,7 @@
 	defaultProps = function(args){
 		var props = {
 				//	ease, linear, ease-in, ease-out, ease-in-out, cubic-bezier(n,n,n,n) initial, inherit
-				TransitionTiming: "ease",
+				TransitionTimingFunction: "ease",
 				TransitionDuration: "0.5s",
 				TransitionProperty: "all"
 			}, p, i, tmp, tmp2, found;
@@ -134,6 +134,7 @@
 	m.animate = function(el, args, cb){
 		el.style = el.style || {};
 		var props = defaultProps(args),
+			//	TODO: Need to add delay!
 			time = getTimeinMS(props.TransitionDuration) || 0;
 
 		//	See if we support transitions
