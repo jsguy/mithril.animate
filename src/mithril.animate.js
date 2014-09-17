@@ -155,10 +155,77 @@
 	};
 
 	//	Animate using keyframes
-	m.animateKeyframe = function(self, keyFrames, duration, animateOnload, cb) {
+	m.animateKeyframe = function(prop, self, keyFrames, duration, animateOnload, cb) {
 		duration = (typeof duration == 'undefined')? defaultDuration: duration;
 		animateOnload = animateOnload || false;
 		var oldConfig = self.config;
+
+
+
+
+
+
+		//	Try to use the prop to trigger the animation?
+		//	Next step if this doesn't work - use prop.subscribe
+		if(prop()) {
+			//	Maybe get a refernce to the el and use it?
+			self.config = function(el, isInit){
+				console.log('set prop', el);
+
+
+
+
+				//	On first load only
+				if(!isInit) {
+					//	Run old config method, if one were supplied
+					if(oldConfig) {
+						setTimeout(function(){
+							oldConfig.apply(self, arguments);
+						}, duration);
+					}
+
+					//	Run cb config method, if one were supplied
+					if(cb) {
+						setTimeout(function(){
+							cb();
+						}, duration + 1);
+					}
+
+					for(idx in keyFrames) {
+						first = keyFrames[idx];
+						break;
+					}
+
+					//	Need to animate to first step immediately on first load
+					m.animate(el, first);
+
+					//	Get our item
+					for(idx in keyFrames) {
+						var time = duration * (idx.replace('%', '') / 100) - elapsedTime,
+							val = keyFrames[idx];
+
+						val.duration = time + "ms";
+						setTimeout(function(el, val){
+							return function(){
+								m.animate(el, val);
+							}
+						}(el, val), elapsedTime);
+						elapsedTime += time;
+					}
+				}
+
+
+
+
+
+			};
+		}
+
+
+		return;
+
+
+
 
 		//	We MUST have access to the element - the vDOM reference does not help,
 		//	as it loses scope and is orphaned when a repaint occurs, so using 
@@ -167,6 +234,19 @@
 		//	reference, so config will have to do.
 		self.config = function(el, isInit){
 			var elapsedTime = 0, idx, first;
+
+
+
+
+
+
+			//	TODO: Problem - this is run whenever anything changes, 
+			//	including other parts of the page, and other mithril "apps".
+
+
+
+
+
 
 			//	On first load
 			if(!isInit) {

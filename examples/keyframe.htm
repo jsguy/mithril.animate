@@ -21,7 +21,7 @@
 <script>
 //	Add a binding - this animates when you change the property.
 m.addBinding("flippyFloppy", function(prop){
-	m.animateKeyframe(this, {
+	m.animateKeyframe(prop, this, {
 		'0%': 	{ left: 8, top: 103 },
 		'25%': 	{ left: 100, top: 40, rotate: "720deg" },
 		'50%': 	{ left: 6, top: 300, rotate: "1080deg" },
