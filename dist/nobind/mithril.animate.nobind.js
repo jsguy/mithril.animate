@@ -6,7 +6,9 @@
 	//	Known prefiex
 	var prefixes = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'],
 	transitionProps = ['TransitionProperty', 'TransitionTimingFunction', 'TransitionDelay', 'TransitionDuration', 'TransitionEnd'],
-	transformProps = ['rotate', 'scale', 'skew', 'translate', 'translatex', 'translatey', 'matrix'],
+	transformProps = ['rotate', 'rotatex', 'rotatey', 'scale', 'skew', 'translate', 'translatex', 'translatey', 'matrix'],
+
+	defaultDuration = 400,
 	
 	//	Capitalise		
 	cap = function(str){
@@ -83,7 +85,7 @@
 		var props = {
 				//	ease, linear, ease-in, ease-out, ease-in-out, cubic-bezier(n,n,n,n) initial, inherit
 				TransitionTimingFunction: "ease",
-				TransitionDuration: "0.5s",
+				TransitionDuration: defaultDuration + "ms",
 				TransitionProperty: "all"
 			}, p, i, tmp, tmp2, found;
 
@@ -134,7 +136,7 @@
 	m.animate = function(el, args, cb){
 		el.style = el.style || {};
 		var props = defaultProps(args),
-			//	TODO: Need to add delay!
+			//	TODO: Need to add delay!?
 			time = getTimeinMS(props.TransitionDuration) || 0;
 
 		//	See if we support transitions
@@ -150,6 +152,65 @@
 		if(cb){
 			setTimeout(cb, time+1);
 		}
+	};
+
+	//	Animate using keyframes
+	m.animateKeyframe = function(self, keyFrames, duration, animateOnload, cb) {
+		duration = (typeof duration == 'undefined')? defaultDuration: duration;
+		animateOnload = animateOnload || false;
+		var oldConfig = self.config;
+
+		//	We MUST have access to the element - the vDOM reference does not help,
+		//	as it loses scope and is orphaned when a repaint occurs, so using 
+		//	setTimeout on a vDOM element does not work.
+		//	Note: there does not seem to be any other way to get a 
+		//	reference, so config will have to do.
+		self.config = function(el, isInit){
+			var elapsedTime = 0, idx, first;
+
+			//	On first load
+			if(!isInit) {
+				//	Run old config method, if one were supplied
+				if(oldConfig) {
+					setTimeout(function(){
+						oldConfig.apply(self, arguments);
+					}, duration);
+				}
+
+				//	Run cb config method, if one were supplied
+				if(cb) {
+					setTimeout(function(){
+						cb();
+					}, duration + 1);
+				}
+				//	Check if we should animate onload
+				if(!animateOnload) {
+					return;
+				}
+
+				for(idx in keyFrames) {
+					first = keyFrames[idx];
+					break;
+				}
+
+				//	Need to animate to first step immediately on first load
+				m.animate(el, first);
+			}
+
+			//	Get our item
+			for(idx in keyFrames) {
+				var time = duration * (idx.replace('%', '') / 100) - elapsedTime,
+					val = keyFrames[idx];
+
+				val.duration = time + "ms";
+				setTimeout(function(el, val){
+					return function(){
+						m.animate(el, val);
+					}
+				}(el, val), elapsedTime);
+				elapsedTime += time;
+			}
+		};
 	};
 
 }(window.m || {}));

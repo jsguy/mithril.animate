@@ -5,57 +5,30 @@
 	<script src="../node_modules/mithril.bindings/dist/mithril.bindings.js"></script>
 	<script src="../src/mithril.animate.js"></script>
 	<script src="../src/mithril.animate.bindings.js"></script>
-
+	<link rel="stylesheet" type="text/css" href="examplestyle.css">
 	<style>
-		#content { font-family: sans-serif; }
-		.eBox { width: 2em; height: 2em; background-color: #7b7; border: 1px solid #70bb70; margin-top: 1em;}
-		.eBox.alt1 { background-color: #cfc; border: 1px solid #c0ffc0; opacity: 0; }
-		.eBox.abs { top: 72px; position: absolute; }
-
-		.eBox.icon { position: absolute; background-color: inherit; border: none; background-image: url(icons.png); background-repeat: no-repeat; background-position: 0 -32px;  }
-		.eBox.icon.alt1 { background-position: 0 0;  }
-		.exampleBox:before, .exampleBox:after {content: " "; display: table; }
-		.exampleBox:after {clear: both; }
-		.exampleBox { *zoom: 1; min-height: 7em; position: relative; border: 2px solid #333; border-radius: 3px; float: left; margin: 0 0 1em 1em; min-height: 7em; padding: 1em; position: relative; width: 8em; }
-		h2 { font-size: 1.2em; clear: both; }
-		.exampleBox h3 { font-size: 1em; margin-top: 0; font-family: sans-serif; }
-		.exampleBox a { font-size: 0.7em }
-
-
 		.rBox { display: block; position: absolute; padding: 0.5em 1em; border: 1px solid #ccc; }
-
 	</style>
-
 </head>
 <body>
 <h1>Mithril.animate - bindable animations</h1>
 <p>
-	A compact library that allows you to bind CSS3 animations to properties on your mithril elements.
+	This example shows you how to create a custom keyframe animation
 </p>
 
 <div id="content"></div>
 
-
 <script>
-
-m.addBinding("doStuff", function(prop){
-	console.log('dostuff');
-	var value = prop()? 1: 0;
+//	Add a binding - this animates when you change the property.
+m.addBinding("flippyFloppy", function(prop){
 	m.animateKeyframe(this, {
-		'0%': 	{ left: 0, top: 60 },
-		'25%': 	{ left: 100, top: 100 },
-		'50%': 	{ left: 6, top: 300 },
-		'100%': { left: 0, top: 75 }
-	}, 2000);
+		'0%': 	{ left: 8, top: 103 },
+		'25%': 	{ left: 100, top: 40, rotate: "720deg" },
+		'50%': 	{ left: 6, top: 300, rotate: "1080deg" },
+		'75%': 	{ left: 300, top: 75 },
+		'100%': { left: 8, top: 103 }
+	}, 2000, true);
 }, true);
-
-
-var myFrame = {
-	'0%': 	{ left: 0, top: 0 },
-	'25%': 	{ left: 100, top: 100, opacity: 0, rotate: "30deg" },
-	'50%': 	{ left: 0, top: 300, opacity: 1, rotate: "0" },
-	'100%': { left: 0, top: 0 }
-};
 
 var app = {
 	model: function() {
@@ -66,14 +39,16 @@ var app = {
 	},
 	view: function(c) {
 		var o = c.model;
-		return m.e("div.rBox", { toggle: o.myProperty, doStuff: o.myProperty }, "Click me!");
+		return m.e("div.rBox", {
+			toggle: o.myProperty, 
+			flippyFloppy: o.myProperty 
+		}, "Click me!");
 	}
 };
 
 //initialize
 m.module(document.getElementById('content'), app);
 </script>
-
 
 </body>
 </html>

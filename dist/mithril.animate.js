@@ -165,7 +165,9 @@
 	//	Known prefiex
 	var prefixes = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'],
 	transitionProps = ['TransitionProperty', 'TransitionTimingFunction', 'TransitionDelay', 'TransitionDuration', 'TransitionEnd'],
-	transformProps = ['rotate', 'scale', 'skew', 'translate', 'translatex', 'translatey', 'matrix'],
+	transformProps = ['rotate', 'rotatex', 'rotatey', 'scale', 'skew', 'translate', 'translatex', 'translatey', 'matrix'],
+
+	defaultDuration = 400,
 	
 	//	Capitalise		
 	cap = function(str){
@@ -242,7 +244,7 @@
 		var props = {
 				//	ease, linear, ease-in, ease-out, ease-in-out, cubic-bezier(n,n,n,n) initial, inherit
 				TransitionTimingFunction: "ease",
-				TransitionDuration: "0.5s",
+				TransitionDuration: defaultDuration + "ms",
 				TransitionProperty: "all"
 			}, p, i, tmp, tmp2, found;
 
@@ -293,7 +295,7 @@
 	m.animate = function(el, args, cb){
 		el.style = el.style || {};
 		var props = defaultProps(args),
-			//	TODO: Need to add delay!
+			//	TODO: Need to add delay!?
 			time = getTimeinMS(props.TransitionDuration) || 0;
 
 		//	See if we support transitions
@@ -311,10 +313,79 @@
 		}
 	};
 
+	//	Animate using keyframes
+	m.animateKeyframe = function(self, keyFrames, duration, animateOnload, cb) {
+		duration = (typeof duration == 'undefined')? defaultDuration: duration;
+		animateOnload = animateOnload || false;
+		var oldConfig = self.config;
+
+		//	We MUST have access to the element - the vDOM reference does not help,
+		//	as it loses scope and is orphaned when a repaint occurs, so using 
+		//	setTimeout on a vDOM element does not work.
+		//	Note: there does not seem to be any other way to get a 
+		//	reference, so config will have to do.
+		self.config = function(el, isInit){
+			var elapsedTime = 0, idx, first;
+
+			//	On first load
+			if(!isInit) {
+				//	Run old config method, if one were supplied
+				if(oldConfig) {
+					setTimeout(function(){
+						oldConfig.apply(self, arguments);
+					}, duration);
+				}
+
+				//	Run cb config method, if one were supplied
+				if(cb) {
+					setTimeout(function(){
+						cb();
+					}, duration + 1);
+				}
+				//	Check if we should animate onload
+				if(!animateOnload) {
+					return;
+				}
+
+				for(idx in keyFrames) {
+					first = keyFrames[idx];
+					break;
+				}
+
+				//	Need to animate to first step immediately on first load
+				m.animate(el, first);
+			}
+
+			//	Get our item
+			for(idx in keyFrames) {
+				var time = duration * (idx.replace('%', '') / 100) - elapsedTime,
+					val = keyFrames[idx];
+
+				val.duration = time + "ms";
+				setTimeout(function(el, val){
+					return function(){
+						m.animate(el, val);
+					}
+				}(el, val), elapsedTime);
+				elapsedTime += time;
+			}
+		};
+	};
+
 }(window.m || {}));;/* Default transform2d bindings */
 (function (m) {
-	var basicBindings = ['scale', 'scalex', 'scaley', 'translate', 'translatex', 'translatey', 'matrix', 'backgroundColor', 'backgroundPosition', 'borderBottomColor', 'borderBottomWidth', 'borderLeftColor', 'borderLeftWidth', 'borderRightColor', 'borderRightWidth', 'borderSpacing', 'borderTopColor', 'borderTopWidth', 'bottom', 'clip', 'color', 'fontSize', 'fontWeight', 'height', 'left', 'letterSpacing', 'lineHeight', 'marginBottom', 'marginLeft', 'marginRight', 'marginTop', 'maxHeight', 'maxWidth', 'minHeight', 'minWidth', 'opacity', 'outlineColor', 'outlineWidth', 'paddingBottom', 'paddingLeft', 'paddingRight', 'paddingTop', 'right', 'textIndent', 'textShadow', 'top', 'verticalAlign', 'visibility', 'width', 'wordSpacing', 'zIndex'], i;
+	var basicBindings = ['scale', 'scalex', 'scaley', 'translate', 'translatex', 'translatey', 
+		'matrix', 'backgroundColor', 'backgroundPosition', 'borderBottomColor', 
+		'borderBottomWidth', 'borderLeftColor', 'borderLeftWidth', 'borderRightColor', 
+		'borderRightWidth', 'borderSpacing', 'borderTopColor', 'borderTopWidth', 'bottom', 
+		'clip', 'color', 'fontSize', 'fontWeight', 'height', 'left', 'letterSpacing', 
+		'lineHeight', 'marginBottom', 'marginLeft', 'marginRight', 'marginTop', 'maxHeight', 
+		'maxWidth', 'minHeight', 'minWidth', 'opacity', 'outlineColor', 'outlineWidth', 
+		'paddingBottom', 'paddingLeft', 'paddingRight', 'paddingTop', 'right', 'textIndent', 
+		'textShadow', 'top', 'verticalAlign', 'visibility', 'width', 'wordSpacing', 'zIndex'],
+		degBindings = ['rotate', 'rotatex', 'rotatey', 'skewx', 'skewy'], i;
 
+	//	Basic bindings where we pass the prop straight through
 	for(i = 0; i < basicBindings.length; i += 1) {
 		(function(name){
 			m.addBinding(name, function(prop){
@@ -324,16 +395,21 @@
 			}, true);
 		}(basicBindings[i]));
 	}
-	m.addBinding("rotate", function(prop){
-		m.animate(this, { rotate: prop() + "deg" });
-	}, true);
+	
+	//	Degree based bindings - conditionally postfix with "deg"
+	for(i = 0; i < degBindings.length; i += 1) {
+		(function(name){
+			m.addBinding(name, function(prop){
+				var options = {}, value = prop();
+				options[name] = isNaN(value)? value: value + "deg";
+				m.animate(this, options);
+			}, true);
+		}(degBindings[i]));
+	}
+
+	//	Attributes that require more than one prop
 	m.addBinding("skew", function(prop){
-		m.animate(this, { skew: [prop()[0]+ "deg", prop()[1] + "deg"] });
-	}, true);
-	m.addBinding("skewx", function(prop){
-		m.animate(this, { skewx: prop()+ "deg" });
-	}, true);
-	m.addBinding("skewy", function(prop){
-		m.animate(this, { skewy: prop()+ "deg" });
+		var value = prop();
+		m.animate(this, { skew: [value[0] + (isNaN(value[0])? "":"deg"), value[1] + (isNaN(value[1])? "":"deg")] });
 	}, true);
 }(window.m));

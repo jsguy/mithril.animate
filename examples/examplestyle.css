@@ -1,0 +1,13 @@
+		#content { font-family: sans-serif; }
+		.eBox { width: 2em; height: 2em; background-color: #7b7; border: 1px solid #70bb70; margin-top: 1em;}
+		.eBox.alt1 { background-color: #cfc; border: 1px solid #c0ffc0; opacity: 0; }
+		.eBox.abs { top: 72px; position: absolute; }
+
+		.eBox.icon { position: absolute; background-color: inherit; border: none; background-image: url(icons.png); background-repeat: no-repeat; background-position: 0 -32px;  }
+		.eBox.icon.alt1 { background-position: 0 0;  }
+		.exampleBox:before, .exampleBox:after {content: " "; display: table; }
+		.exampleBox:after {clear: both; }
+		.exampleBox { *zoom: 1; min-height: 7em; position: relative; border: 2px solid #333; border-radius: 3px; float: left; margin: 0 0 1em 1em; min-height: 7em; padding: 1em; position: relative; width: 8em; }
+		h2 { font-size: 1.2em; clear: both; }
+		.exampleBox h3 { font-size: 1em; margin-top: 0; font-family: sans-serif; }
+		.exampleBox a { font-size: 0.7em }

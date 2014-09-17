@@ -6,7 +6,9 @@
 	//	Known prefiex
 	var prefixes = ['Moz', 'Webkit', 'Khtml', 'O', 'ms'],
 	transitionProps = ['TransitionProperty', 'TransitionTimingFunction', 'TransitionDelay', 'TransitionDuration', 'TransitionEnd'],
-	transformProps = ['rotate', 'scale', 'skew', 'translate', 'translatex', 'translatey', 'matrix'],
+	transformProps = ['rotate', 'rotatex', 'rotatey', 'scale', 'skew', 'translate', 'translatex', 'translatey', 'matrix'],
+
+	defaultDuration = 400,
 	
 	//	Capitalise		
 	cap = function(str){
@@ -83,7 +85,7 @@
 		var props = {
 				//	ease, linear, ease-in, ease-out, ease-in-out, cubic-bezier(n,n,n,n) initial, inherit
 				TransitionTimingFunction: "ease",
-				TransitionDuration: "0.5s",
+				TransitionDuration: defaultDuration + "ms",
 				TransitionProperty: "all"
 			}, p, i, tmp, tmp2, found;
 
@@ -152,149 +154,63 @@
 		}
 	};
 
-/*
-
-var myFrame = {
-	'0%': 	{ left: 0, top: 0 },
-	'25%': 	{ left: 100, top: 100, opacity: 0, rotate: "30deg" },
-	'50%': 	{ left: 0, top: 300, opacity: 1, rotate: "0" },
-	'100%': { left: 0, top: 0 }
-};
-
-var keyframes = {
-	set: function($el, frames, duration) {
-		var animate = function() {
-			var elapsedTime = 0;
-			
-			$.each(frames, function(idx, val) {
-				var time = duration * (idx.replace('%', '') / 100) - elapsedTime;
-				console.log(val, time);
-				
-				$el.animate(val, time);
-
-				return elapsedTime += time;
-			});
-
-			return setTimeout(animate, duration);
-		};
-		return animate();
-	}
-};
-
-$(document).ready(function(){
-	keyframes.set($('#mydiv'), myFrame, 2000); 
-});
-
-
- */
-
-
-
-
-
-
-	//	vDOM animation method - sets the properties on the object that represents the element
-	//	Note: due to how mithril handles redraws for "on" events, this code will run 
-	//	each time any "on" event is fired. The good news is that the DOM won't be rerendered
-	//	as it uses the "diff" strategy, but the reality is, we don't really want this to run,
-	//	it would be nice to be able to avoid it.
-	m.animateVDOM = function (self, args, cb) {
+	//	Animate using keyframes
+	m.animateKeyframe = function(self, keyFrames, duration, animateOnload, cb) {
+		duration = (typeof duration == 'undefined')? defaultDuration: duration;
+		animateOnload = animateOnload || false;
 		var oldConfig = self.config;
 
-		//	Use config so we can access the element - we need to be able to
-		//	remove transition/transform attributes after the animation is done,
-		//	and this seems the only way. Note: the animation will work on a
-		//	vDOM element, but we cannot remove the old attributes
-		self.config = function(el){
-			console.log(el);
-			m.animate(el, args, cb);
-			//	Run old config method, if one were supplied
-			if(oldConfig) {
-				oldConfig.apply(self, arguments);
+		//	We MUST have access to the element - the vDOM reference does not help,
+		//	as it loses scope and is orphaned when a repaint occurs, so using 
+		//	setTimeout on a vDOM element does not work.
+		//	Note: there does not seem to be any other way to get a 
+		//	reference, so config will have to do.
+		self.config = function(el, isInit){
+			var elapsedTime = 0, idx, first;
+
+			//	On first load
+			if(!isInit) {
+				//	Run old config method, if one were supplied
+				if(oldConfig) {
+					setTimeout(function(){
+						oldConfig.apply(self, arguments);
+					}, duration);
+				}
+
+				//	Run cb config method, if one were supplied
+				if(cb) {
+					setTimeout(function(){
+						cb();
+					}, duration + 1);
+				}
+				//	Check if we should animate onload
+				if(!animateOnload) {
+					return;
+				}
+
+				for(idx in keyFrames) {
+					first = keyFrames[idx];
+					break;
+				}
+
+				//	Need to animate to first step immediately on first load
+				m.animate(el, first);
 			}
-		}
-	};
-
-
-
-	m.animateKeyframe = function(self, keyFrames, duration, cb) {
-
-		var oldConfig = self.config;
-
-		// self.config = function(el, isInit, context){
-			
-		// 	context.count = context.count || 0;
-		// 	var count = 0, idx, val, first;
-		// 	//	Get our item
-		// 	for(idx in keyFrames) {
-		// 		first = first? first: keyFrames[idx];
-		// 		if(count == context.count) {
-		// 			console.log(idx);
-		// 			val = keyFrames[idx];
-		// 			break;
-		// 		}
-		// 		count += 1;
-		// 	}
-
-		// 	//	Back to the start
-		// 	if(!val) {
-		// 		val = first;
-		// 	}
-
-
-		// 	var elapsedTime = 0,
-		// 		time = duration * (idx.replace('%', '') / 100) - elapsedTime;
-		// 		//val = keyFrames[idx];
-
-		// 	val.duration = time + "ms";
-			
-		// 	// setTimeout(function(el, val){
-		// 	// 	return function(){
-		// 	// 		console.log('animate', el, val);
-		// 	// 		m.animate(el, val);
-		// 	// 	}
-		// 	// }(el, val), time);
-		// 	console.log('animate', el, val);
-		// 	m.animate(el, val);
-
-		// 	elapsedTime += time;
-		// 	context.count += 1;
-		// };
-
-		self.config = function(el, isInit, context){
-			
-			context.count = context.count || 0;
-			var elapsedTime = 0;
 
 			//	Get our item
 			for(idx in keyFrames) {
-				var delayTime = duration * (idx.replace('%', '') / 100),
-					time = delayTime - elapsedTime,
+				var time = duration * (idx.replace('%', '') / 100) - elapsedTime,
 					val = keyFrames[idx];
+
 				val.duration = time + "ms";
-				console.log(idx, delayTime, time, elapsedTime);
 				setTimeout(function(el, val){
 					return function(){
-						//console.log('animate', el, val);
 						m.animate(el, val);
 					}
-				}(el, val), delayTime);
+				}(el, val), elapsedTime);
 				elapsedTime += time;
 			}
-
-			if(!isInit) {
-				console.log('set timeout for old cfg', duration);
-			}
 		};
-
-		//return animate();
 	};
-
-
-
-
-
-
-
 
 }(window.m || {}));
