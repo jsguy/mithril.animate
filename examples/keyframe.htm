@@ -32,17 +32,24 @@ m.addBinding("flippyFloppy", function(prop){
 
 var app = {
 	model: function() {
-		this.myProperty = m.prop(0);
+		this.myProperty = m.p(0);
+		this.myProperty2 = m.p(0);
 	},
 	controller: function() {
 		this.model = new app.model();
 	},
 	view: function(c) {
 		var o = c.model;
-		return m.e("div.rBox", {
-			toggle: o.myProperty, 
-			flippyFloppy: o.myProperty 
-		}, "Click me!");
+		return [
+			m.e("div.rBox", {
+				toggle: o.myProperty, 
+				flippyFloppy: o.myProperty 
+			}, "Click me!"),
+			m.e("div.rBox", {
+				toggle: o.myProperty2, 
+				flippyFloppy: o.myProperty2
+			}, "Click me too!")
+		];
 	}
 };
 

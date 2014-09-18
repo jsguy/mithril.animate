@@ -161,7 +161,9 @@
 		var oldConfig = self.config;
 
 
-
+		prop.subscribe(function(value){
+			console.log('prop value', value);
+		});
 
 
 
@@ -170,12 +172,13 @@
 		if(prop()) {
 			//	Maybe get a refernce to the el and use it?
 			self.config = function(el, isInit){
-				console.log('set prop', el);
+				var elapsedTime = 0, idx, first;
+				console.log('config', el);
 
 
 
 
-				//	On first load only
+				//	On first load only - ie: when something changed.
 				if(!isInit) {
 					//	Run old config method, if one were supplied
 					if(oldConfig) {
