@@ -14,28 +14,33 @@
 	//	Basic bindings where we pass the prop straight through
 	for(i = 0; i < basicBindings.length; i += 1) {
 		(function(name){
-			m.addBinding(name, function(prop){
+			m.addAnimation(name, function(prop){
 				var options = {};
 				options[name] = prop();
-				m.animate(this, options);
-			}, true);
+				return options;
+			});
 		}(basicBindings[i]));
 	}
 	
 	//	Degree based bindings - conditionally postfix with "deg"
 	for(i = 0; i < degBindings.length; i += 1) {
 		(function(name){
-			m.addBinding(name, function(prop){
+			m.addAnimation(name, function(prop){
 				var options = {}, value = prop();
 				options[name] = isNaN(value)? value: value + "deg";
-				m.animate(this, options);
-			}, true);
+				return options;
+			});
 		}(degBindings[i]));
 	}
 
 	//	Attributes that require more than one prop
-	m.addBinding("skew", function(prop){
+	m.addAnimation("skew", function(prop){
 		var value = prop();
-		m.animate(this, { skew: [value[0] + (isNaN(value[0])? "":"deg"), value[1] + (isNaN(value[1])? "":"deg")] });
-	}, true);
+		return {
+			skew: [
+				value[0] + (isNaN(value[0])? "":"deg"), 
+				value[1] + (isNaN(value[1])? "":"deg")
+			]
+		};
+	});
 }(window.m));

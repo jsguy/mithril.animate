@@ -1,19 +1,19 @@
-//	Custom animation binders
-m.addBinding("rotateCWOpacity", function(prop){
+//	Custom animations
+m.addAnimation("rotateCWOpacity", function(prop){
 	var value = prop()? 0: 1;
-	m.animate(this, {
+	return {
 		opacity: value,
 		rotate: (value * -180) + "deg"
-	});
-}, true);
+	};
+});
 
-m.addBinding("rotateCCWOpacityIn", function(prop){
+m.addAnimation("rotateCCWOpacityIn", function(prop){
 	var value = prop()? 1: 0;
-	m.animate(this, {
+	return {
 		opacity: value,
 		rotate: (value * 180) + "deg"
-	});
-}, true);
+	};
+});
 
 //	Basic animation examples
 var allExample = {

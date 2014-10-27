@@ -2,12 +2,16 @@
 <head>
 	<title></title>
 	<script src="mithril.js"></script>
-	<script src="../node_modules/mithril.bindings/dist/mithril.bindings.js"></script>
+<!--	<script src="../node_modules/mithril.bindings/dist/mithril.bindings.js"></script> -->
+	<script src="../../mithril.bindings/src/mithril.bindings.js"></script>
+	<script src="../../mithril.bindings/src/mithril.bindings.defaults.js"></script>
+	<script src="../../mithril.bindings/src/mithril.bindings.utils.js"></script>
 	<script src="../src/mithril.animate.js"></script>
 	<script src="../src/mithril.animate.bindings.js"></script>
 	<link rel="stylesheet" type="text/css" href="examplestyle.css">
 	<style>
-		.rBox { display: block; position: absolute; padding: 0.5em 1em; border: 1px solid #ccc; }
+		.rBox { display: block; position: relative; padding: 0.5em 1em; border: 1px solid #ccc; width: 5em; }
+		.con { perspective: 200px; }
 	</style>
 </head>
 <body>
@@ -19,36 +23,95 @@
 <div id="content"></div>
 
 <script>
-//	Add a binding - this animates when you change the property.
-m.addBinding("flippyFloppy", function(prop){
-	m.animateKeyframe(prop, this, {
-		'0%': 	{ left: 8, top: 103 },
-		'25%': 	{ left: 100, top: 40, rotate: "720deg" },
-		'50%': 	{ left: 6, top: 300, rotate: "1080deg" },
-		'75%': 	{ left: 300, top: 75 },
-		'100%': { left: 8, top: 103 }
-	}, 2000, true);
-}, true);
+
+//	Keyframes are static animations and cannot use prop values
+m.addKFAnimation("bleh", {
+	'0%': 	{ left: 0, top: 0 },
+	'25%': 	{ left: 100, top: 40, rotate: "720deg" },
+	'50%': 	{ left: 200, top: 300, rotatey: "180deg" },
+	'75%': 	{ left: 300, top: 75, scale: 6, rotatex: "180deg" },
+	'100%': { left: 0, top: 0 }
+}, {
+	duration: 2000 
+});
+
+m.addKFAnimation("fadeout", {
+	'0%': { opacity: 1 },
+	'100%': { opacity: 0 }
+});
+
+m.addKFAnimation("fadein", {
+	'0%': { opacity: 0 },
+	'100%': { opacity: 1 }
+});
+
+//	Transition based animations can take a property, so we use a function
+m.addAnimation("fadeyo", function(prop){
+	return { opacity: prop()? 1: 0 };
+});
+
+
+m.addAnimation("rotateOpacity", function(prop){
+	var value = prop()? 1: 0;
+	return {
+		opacity: 1-value,
+		rotate: (value * -360) + "deg"
+	};
+}, { 
+	duration: 2000,
+	timingFunction: 'linear' 
+});
+
+
 
 var app = {
 	model: function() {
-		this.myProperty = m.p(0);
-		this.myProperty2 = m.p(0);
+		this.myProperty = m.prop(true);
+		this.myProperty2 = m.prop(false);
+		this.myProperty3 = m.prop(0);
+		this.myProperty4 = m.prop(1);
 	},
 	controller: function() {
-		this.model = new app.model();
+		window.model = this.model = new app.model();
+		this.binSwap = function(){
+
+		}
 	},
 	view: function(c) {
 		var o = c.model;
 		return [
-			m.e("div.rBox", {
-				toggle: o.myProperty, 
-				flippyFloppy: o.myProperty 
-			}, "Click me!"),
-			m.e("div.rBox", {
+			m.e("div.con", [
+				m.e("div.rBox", {
+					//	Using event to trigger
+					onclick: m.triggerKF('bleh')
+				}, "Click me!")
+			])
+
+			, m.e("div.rBox", {
 				toggle: o.myProperty2, 
-				flippyFloppy: o.myProperty2
-			}, "Click me too!")
+				fadeout: o.myProperty2
+			}, "Click me to fade out")
+
+			//	TODO: Should make an example where we animate when a message arrives, juping spining number circle thing...
+			, m.e("div.rBox", {
+				toggle: o.myProperty3, 
+				bleh: o.myProperty3
+			}, "Click me three!")
+
+			, m.e("div.rBox", {
+				toggle: o.myProperty4, 
+				fadeyo: o.myProperty4
+			}, "Click me to toggle fade")
+
+			, m.e("div.rBox", {
+				onclick: m.trigger('fadeyo', 0, {}, function(){console.log('cb');})
+			}, "Click me to trigger fade")
+
+			, m.e("div.rBox", {
+				//onclick: m.trigger('rotateOpacity', 1, { duration: 20000 })
+				onclick: m.trigger('rotateOpacity', 1, { timingFunction: 'linear' })
+			}, "Click me to trigger rotateOpacity")
+
 		];
 	}
 };
