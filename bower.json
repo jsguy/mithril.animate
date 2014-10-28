@@ -1,0 +1,20 @@
+{
+  "name": "mithril.animate",
+  "main": "dist/mithril.animate.min.js",
+  "version": "0.1.0",
+  "description": "A compact library that allows you to bind CSS3 animations to properties on your Mithril elements.",
+  "keywords": [
+    "animation",
+    "css3",
+    "transition",
+    "transform",
+    "keyframe",
+    "mithril",
+    "awesome"
+  ],
+  "authors": [
+    "Mikkel Bergmann (jsguy)"
+  ],
+  "license": "MIT",
+  "homepage": "http://jsguy.github.io/mithril.animate/"
+}
