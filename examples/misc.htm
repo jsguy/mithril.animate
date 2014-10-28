@@ -2,12 +2,14 @@
 <head>
 	<title></title>
 	<script src="mithril.js"></script>
-<!--	<script src="../node_modules/mithril.bindings/dist/mithril.bindings.js"></script> -->
+	<script src="../dist/mithril.animate.js"></script>
+	<!--
 	<script src="../../mithril.bindings/src/mithril.bindings.js"></script>
 	<script src="../../mithril.bindings/src/mithril.bindings.defaults.js"></script>
 	<script src="../../mithril.bindings/src/mithril.bindings.utils.js"></script>
 	<script src="../src/mithril.animate.js"></script>
 	<script src="../src/mithril.animate.bindings.js"></script>
+	-->
 	<link rel="stylesheet" type="text/css" href="examplestyle.css">
 	<style>
 		.rBox { display: block; position: relative; padding: 0.5em 1em; border: 1px solid #ccc; width: 5em; }
@@ -17,13 +19,13 @@
 <body>
 <h1>Mithril.animate - bindable animations</h1>
 <p>
-	This example shows you how to create a custom keyframe animation
+	This example shows you how to create miscellaneous animations and bindings, including a custom keyframe animation.<br/>
+	<b>Note: </b>One downside to using property bound animations is that they will animate each time there are changes in the vDOM.
 </p>
 
 <div id="content"></div>
 
 <script>
-
 //	Keyframes are static animations and cannot use prop values
 m.addKFAnimation("bleh", {
 	'0%': 	{ left: 0, top: 0 },
@@ -35,22 +37,19 @@ m.addKFAnimation("bleh", {
 	duration: 2000 
 });
 
+//	Ketframe fade out - useful for "one-way" animations, eg: delete element
 m.addKFAnimation("fadeout", {
 	'0%': { opacity: 1 },
 	'100%': { opacity: 0 }
 });
 
-m.addKFAnimation("fadein", {
-	'0%': { opacity: 0 },
-	'100%': { opacity: 1 }
-});
 
 //	Transition based animations can take a property, so we use a function
 m.addAnimation("fadeyo", function(prop){
 	return { opacity: prop()? 1: 0 };
 });
 
-
+//	Multi transition animation with specified options
 m.addAnimation("rotateOpacity", function(prop){
 	var value = prop()? 1: 0;
 	return {
@@ -61,7 +60,6 @@ m.addAnimation("rotateOpacity", function(prop){
 	duration: 2000,
 	timingFunction: 'linear' 
 });
-
 
 
 var app = {
@@ -80,35 +78,36 @@ var app = {
 	view: function(c) {
 		var o = c.model;
 		return [
+			//	Using event to trigger
 			m.e("div.con", [
 				m.e("div.rBox", {
-					//	Using event to trigger
 					onclick: m.triggerKF('bleh')
 				}, "Click me!")
 			])
 
+			//	Using binding to trigger KF animation
+			//	Note: using toggle property when you click
 			, m.e("div.rBox", {
 				toggle: o.myProperty2, 
 				fadeout: o.myProperty2
 			}, "Click me to fade out")
 
-			//	TODO: Should make an example where we animate when a message arrives, juping spining number circle thing...
-			, m.e("div.rBox", {
-				toggle: o.myProperty3, 
-				bleh: o.myProperty3
-			}, "Click me three!")
-
+			//	Using binding for transition animation, this is a neat
+			//	way to be able to run the animation in reverse
 			, m.e("div.rBox", {
 				toggle: o.myProperty4, 
 				fadeyo: o.myProperty4
 			}, "Click me to toggle fade")
 
+			//	Using event to trigger transition animation with option overrides
 			, m.e("div.rBox", {
-				onclick: m.trigger('fadeyo', 0, {}, function(){console.log('cb');})
+				onclick: m.trigger('fadeyo', 0, {}, function(){
+					/*Run when animation is done*/
+				})
 			}, "Click me to trigger fade")
 
+			//	Event trigger multi transition animation with option overrides
 			, m.e("div.rBox", {
-				//onclick: m.trigger('rotateOpacity', 1, { duration: 20000 })
 				onclick: m.trigger('rotateOpacity', 1, { timingFunction: 'linear' })
 			}, "Click me to trigger rotateOpacity")
 

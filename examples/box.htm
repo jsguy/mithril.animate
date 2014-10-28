@@ -2,13 +2,14 @@
 <head>
 	<title></title>
 	<script src="mithril.js"></script>
-<!--	<script src="../node_modules/mithril.bindings/dist/mithril.bindings.js"></script> -->
+	<script src="../dist/mithril.animate.js"></script>
+	<!--
 	<script src="../../mithril.bindings/src/mithril.bindings.js"></script>
 	<script src="../../mithril.bindings/src/mithril.bindings.defaults.js"></script>
 	<script src="../../mithril.bindings/src/mithril.bindings.utils.js"></script>
 	<script src="../src/mithril.animate.js"></script>
 	<script src="../src/mithril.animate.bindings.js"></script>
-	<link rel="stylesheet" type="text/css" href="xexamplestyle.css">
+	-->
 	<link rel="stylesheet" type="text/css" href="catspin.css">
 </head>
 <body>
@@ -21,22 +22,18 @@
 <div id="content"></div>
 
 <script>
+//	Add our animation
 m.addKFAnimation("spinBox", {
 	'0%': { rotatex: "0", rotatey: "0" },
 	'100%': { rotatex: "360deg", rotatey: "360deg" }
 }, {
 	duration: 2000,
-	//iterationCount: "infinite",
 	timingFunction: "linear"
 });
 
+//	Create app
 var app = {
-	model: function() {
-		this.myProperty = m.p(true);
-	},
-	controller: function() {
-		window.model = this.model = new app.model();
-	},
+	controller: function() {},
 	view: function(c) {
 		var o = c.model;
 		return [
