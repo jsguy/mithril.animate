@@ -23,7 +23,7 @@
 	div = document.createElement('div'),
 
 	//	vendor prefix, ie: transitionDuration becomes MozTransitionDuration
-	vp = function (prop) {
+	vp = function (prop, dashed) {
 		var pf;
 		//	Handle unprefixed
 		if (prop in div.style) {
@@ -43,7 +43,11 @@
 		}
 
 		for (var i = 0; i < prefixes.length; i += 1) {
-			pf = prefixes[i] + cap(prop);
+			if(dashed) {
+				pf = "-" +(prefixes[i] + "-" + prop).toLowerCase();
+			} else {
+				pf = prefixes[i] + cap(prop);
+			}
 			if (pf in div.style) {
 				return pf;
 			}
@@ -151,8 +155,8 @@
 				//	Look at transform props
 				for(i = 0; i < transformProps.length; i += 1) {
 					if(tmp == transformProps[i]) {
-						props[vp("transform")] = props[vp("transform")] || "";
-						props[vp("transform")] += " " +p + "(" + value + ")";
+						props[vp("transform", true)] = props[vp("transform", true)] || "";
+						props[vp("transform", true)] += " " +p + "(" + value + ")";
 						found = true;
 						break;
 					}

@@ -1,11 +1,12 @@
 //	Mithril bindings.
 //	Copyright (C) 2014 jsguy (Mikkel Bergmann)
 //	MIT licensed
-(function(context){
-	context.m = context.m || {};
+(function(){
+var mithrilBindings = function(m){
+	m.bindings = m.bindings || {};
 
 	//	Pub/Sub based extended properties
-	context.m.p = function(value) {
+	m.p = function(value) {
 		var self = this,
 			subs = [],
 			prevValue,
@@ -35,7 +36,7 @@
 				value.push(val);
 			}
 			prop(value);
-		}
+		};
 
 		//	Subscribe for when the value changes
 		prop.subscribe = function (func, context) {
@@ -67,8 +68,7 @@
 	//	Note: 
 	//		. Some attributes can be removed when applied, eg: custom attributes
 	//	
-	context.m.e = function(element, attrs, children) {
-		var merged = []
+	m.e = function(element, attrs, children) {
 		for (var name in attrs) {
 			if (m.bindings[name]) {
 				m.bindings[name].func.apply(attrs, [attrs[name]]);
@@ -83,21 +83,20 @@
 	//	Add bindings method
 	//	Non-standard attributes do not need to be rendered, eg: valueInput
 	//	so they are set as removable
-	context.m.addBinding = function(name, func, removeable){
-		context.m.bindings = context.m.bindings || {};
-		context.m.bindings[name] = {
+	m.addBinding = function(name, func, removeable){
+		m.bindings[name] = {
 			func: func,
 			removeable: removeable
 		};
 	};
 
 	//	Get the underlying value of a property
-	context.m.unwrap = function(prop) {
+	m.unwrap = function(prop) {
 		return (typeof prop == "function")? prop(): prop;
 	};
 
 	//	Bi-directional binding of value
-	context.m.addBinding("value", function(prop) {
+	m.addBinding("value", function(prop) {
 		if (typeof prop == "function") {
 			this.value = prop();
 			this.onchange = m.withAttr("value", prop);
@@ -107,7 +106,7 @@
 	});
 
 	//	Bi-directional binding of checked property
-	context.m.addBinding("checked", function(prop) {
+	m.addBinding("checked", function(prop) {
 		if (typeof prop == "function") {
 			this.checked = prop();
 			this.onchange = m.withAttr("checked", prop);
@@ -116,13 +115,56 @@
 		}
 	});
 
+	//	Hide node
+	m.addBinding("hide", function(prop){
+		this.style = {
+			display: m.unwrap(prop)? "none" : ""
+		};
+	}, true);
+
+	//	Toggle value(s) on click
+	m.addBinding('toggle', function(prop){
+		this.onclick = function(){
+			//	Toggle allows an enum list to be toggled, eg: [prop, value2, value2]
+			var isFunc = typeof prop === 'function', tmp, i, vals = [], val, tVal;
+
+			//	Toggle boolean
+			if(isFunc) {
+				value = prop();
+				prop(!value);
+			} else {
+				//	Toggle enumeration
+				tmp = prop[0];
+				val = tmp();
+				vals = prop.slice(1);
+				tVal = vals[0];
+
+				for(i = 0; i < vals.length; i += 1) {
+					if(val == vals[i]) {
+						if(typeof vals[i+1] !== 'undefined') {
+							tVal = vals[i+1];
+						}
+						break;
+					}
+				}
+				tmp(tVal);
+			}
+		};
+	}, true);
+
+	//	Set hover states, a'la jQuery pattern
+	m.addBinding('hover', function(prop){
+		this.onmouseover = prop[0];
+		if(prop[1]) {
+			this.onmouseout = prop[1];
+		}
+	}, true );
+
 	//	Add value bindings for various event types 
-	var events = ["Input", "Keyup", "Keypress"];
-	for(var i = 0; i < events.length; i += 1) {
-		var eve = events[i];
-		(function(name, eve){
+	var events = ["Input", "Keyup", "Keypress"],
+		createBinding = function(name, eve){
 			//	Bi-directional binding of value
-			context.m.addBinding(name, function(prop) {
+			m.addBinding(name, function(prop) {
 				if (typeof prop == "function") {
 					this.value = prop();
 					this[eve] = m.withAttr("value", prop);
@@ -130,34 +172,49 @@
 					this.value = prop;
 				}
 			}, true);
-		}("value" + eve, "on" + eve.toLowerCase()));
-	}
-}(window));;/* Set of default bindings */
-(function(context){
-	context.m = context.m || {};
-	//	Hide node
-	context.m.addBinding("hide", function(prop){
-		this.style = {
-			display: context.m.unwrap(prop)? "none" : ""
 		};
-	}, true);
 
-	//	Toggle boolean value on click
-	context.m.addBinding('toggle', function(prop){
-		this.onclick = function(){
-			var value = prop();
-			prop(!value);
-		}
-	}, true);
+	for(var i = 0; i < events.length; i += 1) {
+		var eve = events[i];
+		createBinding("value" + eve, "on" + eve.toLowerCase());
+	}
 
-	//	Set hover states, a'la jQuery pattern
-	context.m.addBinding('hover', function(prop){
-		this.onmouseover = prop[0];
-		if(prop[1]) {
-			this.onmouseout = prop[1];
-		}
-	}, true );
-}(window));;/*
+
+	//	Set a value on a property
+	m.set = function(prop, value){
+		return function() {
+			prop(value);
+		};
+	};
+
+	/*	Returns a function that can trigger a binding 
+		Usage: onclick: m.trigger('binding', prop)
+	*/
+	m.trigger = function(){
+		var args = Array.prototype.slice.call(arguments);
+		return function(){
+			var name = args[0],
+				argList = args.slice(1);
+			if (m.bindings[name]) {
+				m.bindings[name].func.apply(this, argList);
+			}
+		};
+	};
+
+	return m.bindings;
+};
+
+if (typeof module != "undefined" && module !== null && module.exports) {
+	module.exports = mithrilBindings;
+} else if (typeof define === "function" && define.amd) {
+	define(function() {
+		return mithrilBindings;
+	});
+} else {
+	mithrilBindings(typeof window != "undefined"? window.m || {}: {});
+}
+
+}());;/*
 	mithril.animate - Copyright 2014 jsguy
 	MIT Licensed.
 */
@@ -182,7 +239,7 @@
 	div = document.createElement('div'),
 
 	//	vendor prefix, ie: transitionDuration becomes MozTransitionDuration
-	vp = function (prop) {
+	vp = function (prop, dashed) {
 		var pf;
 		//	Handle unprefixed
 		if (prop in div.style) {
@@ -202,7 +259,11 @@
 		}
 
 		for (var i = 0; i < prefixes.length; i += 1) {
-			pf = prefixes[i] + cap(prop);
+			if(dashed) {
+				pf = "-" +(prefixes[i] + "-" + prop).toLowerCase();
+			} else {
+				pf = prefixes[i] + cap(prop);
+			}
 			if (pf in div.style) {
 				return pf;
 			}
@@ -310,8 +371,8 @@
 				//	Look at transform props
 				for(i = 0; i < transformProps.length; i += 1) {
 					if(tmp == transformProps[i]) {
-						props[vp("transform")] = props[vp("transform")] || "";
-						props[vp("transform")] += " " +p + "(" + value + ")";
+						props[vp("transform", true)] = props[vp("transform", true)] || "";
+						props[vp("transform", true)] += " " +p + "(" + value + ")";
 						found = true;
 						break;
 					}
