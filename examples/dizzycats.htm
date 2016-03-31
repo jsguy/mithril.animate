@@ -1,0 +1,65 @@
+<html>
+<head>
+	<title></title>
+	<script src="mithril.js"></script>
+	<script src="../dist/mithril.animate.js"></script>
+	<link rel="stylesheet" type="text/css" href="catspin.css">
+</head>
+<body>
+<h1>Mithril.animate - bindable animations</h1>
+<p>
+	This example shows you how to create a silly spinning box with cats on it that spins forever.<br/>
+	Click the button to see it in action. <a href="catspin.css" target="_blank">Uses a little CSS</a>
+</p>
+
+<div id="content"></div>
+
+<script>
+//	Add our animation
+m.addKFAnimation("spinBox", {
+	'0%': { rotatex: "0", rotatey: "0" },
+	'100%': { rotatex: "360deg", rotatey: "360deg" }
+}, {
+	timingFunction: "linear"
+});
+
+//	This triggers the animation, then re-animates when it is finished
+var reAnimate = function(box){
+	m.animateKF('spinBox', box(), { duration: 5000 }, function(el){
+		reAnimate(box);
+	});
+};
+
+//	This binds a reAnimate init function
+var animateBinder = function(box) {
+	return function(){
+		reAnimate(box);
+	};
+};
+
+//	Create app
+var app = {
+	controller: function() {
+		//	We need this to get a reference to the box we want to animate
+		this.box = m.prop();
+	},
+	view: function(c) {
+		var o = c.model;
+		return [
+			//	A button to trigger the animation
+			m.e("button", {onclick: animateBinder(c.box)}, "Make the cats dizzy!"),
+			//	Get a reference to the box we want to animate
+			m.e("div.box", {config: c.box}, [
+				m.e("div.boxFace1"),
+				m.e("div.boxFace2")
+			])
+		];
+	}
+};
+
+//initialize
+m.module(document.getElementById('content'), app);
+</script>
+
+</body>
+</html>
