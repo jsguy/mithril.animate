@@ -28,6 +28,10 @@ var allExample = {
 			up: m.p(0),
 			opacity: m.p(1)
 		});
+		this.opacityDown = m.p({
+			down: m.p(0),
+			opacity: m.p(1)
+		});
 		this.spinMenu = m.p();
 	},
 	controller: function() {
@@ -53,12 +57,26 @@ var allExample = {
 				self.model.opacityUp().opacity("1");
 			}
 		];
+
+		//	Shortcut to set hover opacity up
+		self.opacityDownHover = [
+			function(){
+				self.model.opacityDown().down("6em");
+				self.model.opacityDown().opacity("0");
+			},
+			function(){
+				self.model.opacityDown().down("0");
+				self.model.opacityDown().opacity("1");
+			}
+		];
+
+
 	},
 	view: function(c) {
 		var o = c.model;
 		return [
 			m.e("h2", "Single animation"),
-			
+
 			m.e("div.exampleBox", { hover: [c.set(o.opacity, 0), c.set(o.opacity, 1)] }, [
 				m.e("h3", "Opacity"),
 				m.e("div.eBox", { opacity: o.opacity })
@@ -90,7 +108,11 @@ var allExample = {
 				m.e("h3", "Opacity up"),
 				m.e("div.eBox", { translatey: o.opacityUp().up, opacity: o.opacityUp().opacity })
 			]),
-			
+			m.e("div.exampleBox", { hover: c.opacityDownHover }, [
+				m.e("h3", "Opacity down"),
+				m.e("div.eBox", { translatey: o.opacityDown().down, opacity: o.opacityDown().opacity })
+			]),
+
 			m.e("h2", "Custom animation"),
 
 			m.e("div.exampleBox", { hover: [c.set(o.spinMenu, 1), c.set(o.spinMenu, 0)] }, [
@@ -103,4 +125,4 @@ var allExample = {
 			])
 		];
 	}
-};	
+};
