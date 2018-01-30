@@ -3,6 +3,7 @@
 	<title></title>
 	<script src="mithril.js"></script>
 	<script src="../dist/mithril.animate.js"></script>
+	<script src="../dist/mithril.bindings.js"></script>
 	<!--
 	<script src="../../mithril.bindings/src/mithril.bindings.js"></script>
 	<script src="../../mithril.bindings/src/mithril.bindings.defaults.js"></script>
@@ -46,6 +47,7 @@ m.addKFAnimation("fadeout", {
 
 //	Transition based animations can take a property, so we use a function
 m.addAnimation("fadeyo", function(prop){
+	console.log('prop', prop);
 	return { opacity: prop()? 1: 0 };
 });
 
@@ -62,21 +64,18 @@ m.addAnimation("rotateOpacity", function(prop){
 });
 
 
-var app = {
-	model: function() {
-		this.myProperty = m.prop(true);
-		this.myProperty2 = m.prop(false);
-		this.myProperty3 = m.prop(0);
-		this.myProperty4 = m.prop(1);
-	},
-	controller: function() {
-		window.model = this.model = new app.model();
-		this.binSwap = function(){
+window.model = {
+	myProperty: m.p(true),
+	myProperty2: m.p(false),
+	myProperty3: m.p(0),
+	myProperty4: m.p(1)
+};
 
-		}
-	},
+
+var app = {
 	view: function(c) {
-		var o = c.model;
+		console.log(arguments);
+		var o = window.model;
 		return [
 			//	Using event to trigger
 			m.e("div.con", [
@@ -116,7 +115,7 @@ var app = {
 };
 
 //initialize
-m.module(document.getElementById('content'), app);
+m.mount(document.getElementById('content'), app);
 </script>
 
 </body>
